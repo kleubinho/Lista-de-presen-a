@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "../../components/Card";
 import "./styles.css";
 
@@ -8,6 +8,7 @@ export function Home() {
     setStudentName /*Atualiza o estado */,
   ] = useState();
   const [students, setStudents] = useState([]);
+  const [user, setUser] = useState({ name: "", avatar: "", login: "" });
 
   function handleAddStudent() {
     const newStudent = {
@@ -20,16 +21,41 @@ export function Home() {
     };
 
     setStudents(
-      /* Estado anterior */ prevState => [...prevState, newStudent] /* Substituindo o valor do antigo estado com o Novo estudante que estamos adicionando */
+      /* Estado anterior */ (prevState) => [
+        ...prevState,
+        newStudent,
+      ] /* Substituindo o valor do antigo estado com o Novo estudante que estamos adicionando */
     );
     // Caso não coloquemos o spread Operator
     // ['Kleber']
     // [['Kleber'], Henrique]
   }
 
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch("https://api.github.com/users/kleubinho");
+      const data = await response.json();
+      setUser({
+        name: data.name,
+        avatar: data.avatar_url,
+        login: data.login,
+      });
+    }
+
+    fetchData()
+  }, []);
+
   return (
     <div className="container">
-      <h1>Lista de presença</h1>
+      <header>
+        <h1>Lista de presença</h1>
+        <div>
+          <strong>{user.name}</strong>
+          {/* <strong>{user.login}</strong> */}
+
+          <img src={user.avatar} alt="foto de perfil" />
+        </div>
+      </header>
 
       <input
         onChange={(e) => setStudentName(e.target.value)}
@@ -42,12 +68,10 @@ export function Home() {
       </button>
 
       {students.map((student) => (
-        <Card 
-            key={student.time}
-            name={student.name} 
-            time={student.time} 
-        />
+        <Card key={student.time} name={student.name} time={student.time} />
       ))}
     </div>
   );
 }
+
+// Os Hooks são funções que permitem ligar e conectar os recurso de estado e ciclo de vida
