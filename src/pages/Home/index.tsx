@@ -1,14 +1,23 @@
 import { useState, useEffect } from "react";
-import { Card } from "../../components/Card";
+import { Card, CardProps } from "../../components/Card";
 import "./styles.css";
+
+type ProfileResponse = {
+  name: string;
+  avatar_url: string;
+}
+type User ={
+  name: string;
+  avatar: string
+}
 
 export function Home() {
   const [
     studentName /*Conteúdo do estado */,
     setStudentName /*Atualiza o estado */,
-  ] = useState();
-  const [students, setStudents] = useState([]);
-  const [user, setUser] = useState({ name: "", avatar: "", login: "" });
+  ] = useState('');
+  const [students, setStudents] = useState<CardProps[]>([]);
+  const [user, setUser] = useState<User>({} as User); //"as User" é pra dizer o padrão dele
 
   function handleAddStudent() {
     const newStudent = {
@@ -20,29 +29,24 @@ export function Home() {
       }),
     };
 
-    setStudents(
-      /* Estado anterior */ (prevState) => [
-        ...prevState,
-        newStudent,
-      ] /* Substituindo o valor do antigo estado com o Novo estudante que estamos adicionando */
-    );
+    setStudents(prevState => [...prevState, newStudent]);
     // Caso não coloquemos o spread Operator
     // ['Kleber']
-    // [['Kleber'], Henrique]
+    // [['Kleber'], Henrique] que seria o errado
+    // ['Kleber', 'Henrique']
   }
 
   useEffect(() => {
     async function fetchData() {
       const response = await fetch("https://api.github.com/users/kleubinho");
-      const data = await response.json();
+      const data = await response.json() as ProfileResponse;
       setUser({
         name: data.name,
         avatar: data.avatar_url,
-        login: data.login,
       });
     }
 
-    fetchData()
+    fetchData();
   }, []);
 
   return (
